@@ -15,7 +15,7 @@ module Sys::Lib::Mail
   end
   
   def date(format = '%Y-%m-%d %H:%M', nullif = nil)
-    @mail.date.blank? ? nullif : @mail.date.strftime(format)
+    @mail.date.blank? ? nullif : @mail.date.in_time_zone.strftime(format)
   end
   
   def from_addr
@@ -196,7 +196,7 @@ module Sys::Lib::Mail
     @attachments = []
     
     attached_files = lambda do |part, level|
-      if part.attachment? && !part.filename.blank? && part.mime_type != 'application/applefile'
+      if part.attachment? && !part.filename.blank?
         seqno = @attachments.size
         body = part.body.decoded rescue part.body.raw_source
         body = decode_uuencode(body) if part.content_transfer_encoding =~ /uuencode/i

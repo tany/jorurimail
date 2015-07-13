@@ -46,6 +46,6 @@ Gw::WebmailDoc.create(
   :sort_no          => 1,
   :published_at     => Time.now,
   :title            => "Joruri Mailについて",
-  :body             => %Q(<p>Joruri Mail ver.#{Joruri.version}</p><p>Joruri Mail is available under the GNU General Public License (GPL v3).</p><p>Copyright (C) 2011-2012 Tokushima Prefectural Government, IDS Inc.</p><p><a title="http://www.joruri.org/" href="http://www.joruri.org/" target="_blank">http://www.joruri.org/</a></p>)
+  :body             => %Q(<p>Joruri Mail is available under the GNU General Public License (GPL v3).</p><p><a title="http://www.joruri.org/" href="http://www.joruri.org/" target="_blank">http://www.joruri.org/</a></p>)
 )
 

@@ -171,6 +171,7 @@ module Gw::MailHelper
   
   def user_agent_info(user_agent)
     [ /(MSIE) (\d+)\.(\d*)/,
+      /(Trident).+rv:(\d+)\.(\d*)/,
       /(Firefox)\/(\d+)\.(\d*)/,
       /(?=.*(Opera)[\s|\/])(?=.*Version\/(\d+)\.(\d*))/,
       /(Chrome)\/(\d+)\.(\d*)/,
@@ -206,7 +207,7 @@ module Gw::MailHelper
       elsif version == 7 && subversion < 20
         limit_size = 4*1024
       end
-    when 'Chrome', 'Safari'
+    when 'Chrome', 'Safari', 'Trident'
     else
       limit_size = 0
     end
@@ -223,5 +224,13 @@ module Gw::MailHelper
       end
     end
     return nil
+  end
+
+  def attachment_file_downloadable?
+    ips = Joruri.config.application['webmail.attachment_file_downloadable_ips']
+    key = Joruri.config.application['webmail.remote_ip_key']
+    return true if ips.nil?
+
+    ips.include?(request.env[key].to_s.split(',').last.to_s.strip)
   end
 end

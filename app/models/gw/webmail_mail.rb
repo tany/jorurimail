@@ -71,9 +71,9 @@ class Gw::WebmailMail
     @in_to_addrs      = parse_address(in_to)
     @in_cc_addrs      = parse_address(in_cc)
     @in_bcc_addrs     = parse_address(in_bcc)
-    self.in_subject   = NKF.nkf('-Ww', in_subject) unless in_subject.blank?
-    self.in_body      = NKF.nkf('-Ww', in_body) unless in_body.blank?
-    self.in_html_body = NKF.nkf('-Ww', in_html_body) unless in_html_body.blank?
+    self.in_subject   = NKF.nkf('-Ww --no-best-fit-chars', in_subject) unless in_subject.blank?
+    self.in_body      = NKF.nkf('-Ww --no-best-fit-chars', in_body) unless in_body.blank?
+    self.in_html_body = NKF.nkf('-Ww --no-best-fit-chars', in_html_body) unless in_html_body.blank?
     
     if in_files.present?
       in_files.each do |file|
@@ -82,7 +82,7 @@ class Gw::WebmailMail
           @tmp_attachment_ids ||= []
           @tmp_attachment_ids << attach.id
         else
-          attach.errors.full_messages.each{|msg| errors.add(:base, "#{file.original_filename}: #{msg}")}
+          attach.errors.full_messages.each{|msg| errors.add(:base, "#{file.original_filename.force_encoding('UTF-8')}: #{msg}")}
         end
       end
       

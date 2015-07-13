@@ -1,4 +1,4 @@
-# coding: utf-8
+# encoding: utf-8
 module Gw::Controller::Admin::Mobile::Mail
   
   def mobile_manage
@@ -31,6 +31,9 @@ module Gw::Controller::Admin::Mobile::Mail
       end
       [:subject, :body].each do |t|
         session[:mobile][t] = params[:item]["in_#{t}".intern]
+      end
+      [:tmp_id, :tmp_attachment_ids].each do |t|
+        session[:mobile][t] = params[:item][t]
       end
     end
     

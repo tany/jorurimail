@@ -1148,6 +1148,32 @@ input.editMemo {
   text-align: center;
 }
 
+/* file upload / swfupload
+--------------------------- */
+#defaultUploader input.file {
+  height: 40px;
+}
+a.deleteUploadedFile {
+  display: inline-block;
+  width: 65px;
+  height: 40px;
+  background-image: url("/_common/themes/admin/gw/webmail/mobile/images/smartphone/btn/bt_m_del.gif");
+  padding-top: 0;
+  text-indent: -9999px;
+}
 
-
+.progressContainer {
+  width: 80%;
+  margin: 4px 0px 2px 0px;
+  padding: 3px 6px;
+  border: 1px solid #bbb;
+  background-color: #eee;
+}
+.progressContainer .progressName {
+  color: #000;
+}
+.progressContainer .progressBarStatus {
+  color: #922;
+  white-space: nowrap;
+}
 

@@ -10,11 +10,9 @@ class Sys::User < Sys::ManageDatabase
     :class_name => 'Sys::Base::Status'
   has_many   :group_rels, :foreign_key => :user_id,
     :class_name => 'Sys::UsersGroup'  , :primary_key => :id
-  has_and_belongs_to_many :groups,
-    :class_name => 'Sys::Group', :join_table => 'sys_users_groups'
-  #has_and_belongs_to_many :role_names, :association_foreign_key => :role_id,
-  #  :class_name => 'Sys::RoleName', :join_table => 'sys_users_roles'
-    
+  has_many :users_groups, :foreign_key => :user_id
+  has_many :groups, :through => :users_groups, :source => :group
+
   has_many :logins, :foreign_key => :user_id, :class_name => 'Sys::UserLogin',
     :order => 'id desc', :dependent => :delete_all
     

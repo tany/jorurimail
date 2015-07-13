@@ -18,7 +18,6 @@ fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, 
 }
 html {
   height: 100%;
-  margin-bottom: 1px;
 }
 body {
   background-color: #fff;

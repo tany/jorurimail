@@ -4,7 +4,7 @@ class Sys::Lib::File::Tempfile < Tempfile
   
   def initialize(options = {})
     @filename = options[:filename]
-    super([File::basename(@filename), File::extname(@filename)])
+    super([Dir::Tmpname.make_tmpname("jorurimail", 24), File::extname(@filename)])
     binmode
     write(options[:data])
     rewind

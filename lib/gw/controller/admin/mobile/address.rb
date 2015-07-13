@@ -1,4 +1,4 @@
-# coding: utf-8
+# encoding: utf-8
 module Gw::Controller::Admin::Mobile::Address
   
   def mobile_manage
@@ -21,7 +21,7 @@ protected
       session[:mobile][t] += ids_to_addrs(params[t])
       flash["mail_#{t}".intern] = session[:mobile][t].uniq.join(', ')
     end
-    [:subject, :body].each do |t|
+    [:subject, :body, :tmp_id, :tmp_attachment_ids].each do |t|
       flash["mail_#{t}".intern] = session[:mobile][t]
     end
     

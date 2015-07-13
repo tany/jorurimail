@@ -9,7 +9,7 @@ class Sys::Lib::Ldap::User < Sys::Lib::Ldap::Entry
   
   ## Attribute: uid
   def uid
-    get(:uid)
+    get(:uid) || get(:sAMAccountName)
   end
   
   ## Attribute: name

@@ -18,7 +18,7 @@ class Sys::Admin::GroupsController < Sys::Controller::Admin::Base
     item.and 'sys_groups.id', @parent
     #item.search params
     #item.page  params[:page], params[:limit]
-    item.order params[:sort], "LPAD(account, 15, '0')"
+    item.order "LPAD(account, 15, '0')"
     @users = item.find(:all)
   end
   
@@ -26,7 +26,7 @@ class Sys::Admin::GroupsController < Sys::Controller::Admin::Base
     item = Sys::Group.new.readable
     item.and :parent_id, @parent.id
     item.page  params[:page], params[:limit]
-    item.order params[:sort], :id
+    item.order :id
     @items = item.find(:all)
     _index @items
   end
@@ -48,9 +48,9 @@ class Sys::Admin::GroupsController < Sys::Controller::Admin::Base
   
   def create
     @item = Sys::Group.new(params[:item])
-    @item.parent_id = @parent.id
     parent = Sys::Group.find_by_id(@item.parent_id)
     @item.level_no = parent ? parent.level_no + 1 : 1
+    @item.call_update_child_level_no = true
     _create @item
   end
   
@@ -59,6 +59,7 @@ class Sys::Admin::GroupsController < Sys::Controller::Admin::Base
     @item.attributes = params[:item]
     parent = Sys::Group.find_by_id(@item.parent_id)
     @item.level_no = parent ? parent.level_no + 1 : 1
+    @item.call_update_child_level_no = true
     _update @item
   end
   

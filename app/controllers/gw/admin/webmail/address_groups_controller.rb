@@ -31,7 +31,7 @@ class Gw::Admin::Webmail::AddressGroupsController < Gw::Controller::Admin::Base
     item = Gw::WebmailAddress.new.readable
     item.and :user_id, Core.user.id
     #item.page 1, @limit
-    item.order params[:sort], get_order()
+    item.order get_order()
     @items = item.find(:all)
     
     if params[:search]
@@ -39,7 +39,7 @@ class Gw::Admin::Webmail::AddressGroupsController < Gw::Controller::Admin::Base
       item.search params if params[:search]
       item.and :user_id, Core.user.id
       #item.page 1, @limit
-      item.order params[:sort], get_order()
+      item.order get_order()
       @s_items = item.find(:all)
     end
 
@@ -78,7 +78,7 @@ class Gw::Admin::Webmail::AddressGroupsController < Gw::Controller::Admin::Base
     item = Gw::WebmailAddress.new.readable
     item.and   :user_id, Core.user.id
     #item.page  params[:page], params[:limit]
-    item.order params[:sort], get_order()
+    item.order get_order()
     @items = item.find(:all)
   end
 
@@ -93,6 +93,7 @@ class Gw::Admin::Webmail::AddressGroupsController < Gw::Controller::Admin::Base
     @item.user_id = Core.user.id
     @item.parent_id = @parent ? @parent.id : 0
     @item.level_no  = @parent ? @parent.level_no + 1 : 1
+    @item.call_update_child_level_no = true
 
     _create @item
   end
@@ -104,6 +105,7 @@ class Gw::Admin::Webmail::AddressGroupsController < Gw::Controller::Admin::Base
     @item.user_id   = Core.user.id
     @item.parent_id = @parent ? @parent.id : 0
     @item.level_no  = @parent ? @parent.level_no + 1 : 1
+    @item.call_update_child_level_no = true
     
     _update @item
   end

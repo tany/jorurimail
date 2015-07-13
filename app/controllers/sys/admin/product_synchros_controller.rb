@@ -107,7 +107,7 @@ protected
       su.ldap            ||= 1
       su.ldap_version      = @version.blank? ? user.ldap_version : @version
       su.sort_no           = user.sort_no
-      su.official_position = user.offitial_position
+      su.official_position = user.official_position
       su.assigned_job      = user.assigned_job
       su.group_s_name      = user.group_s_name
       su.mobile_access     = user.mobile_access if @version.blank?

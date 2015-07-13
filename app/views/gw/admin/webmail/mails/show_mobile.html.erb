@@ -76,10 +76,16 @@
 <% if @item.has_attachments? %>
 <div class="attachmentFile">
 <div class="title"><img src="/_common/themes/admin/gw/webmail/mobile/images/clip-glay.jpg" alt="[有]">添付ファイル</div>
-<div class="attention">※パケット定額サービスに入っていない場合、高額の通信料が発生する場合があります。<br/></div>
+<div class="attention">
+  <% if attachment_file_downloadable? %>
+    <%=raw Joruri.config.application['webmail.download_allow_message'] %>
+  <% else %>
+    <%=raw Joruri.config.application['webmail.download_deny_message'] %>
+  <% end %>
+</div>
 <div class="files">
 <% @item.attachments.each do |at| %>
-  <div class="file"><%= link_to h("#{at.name}"), url_for(:download => at.seqno, :size => at.size),
+  <div class="file"><%= link_to_if attachment_file_downloadable?, h("#{at.name}"), url_for(:download => at.seqno, :size => at.size),
     :target => (at.image? ? '_blank' : nil), :class => at.css_class %> (<%= h("#{at.eng_unit.gsub(/Bytes/,'B')}") %>)</div>
 <% end %>
 </div>

@@ -125,8 +125,7 @@ class Gw::Admin::Webmail::MailsController < Gw::Controller::Admin::Base
     
     if params[:download] == "eml"
       filename = @item.subject + ".eml"
-      filename = filename.gsub(/[\/\<\>\|:"\?\*\\]/, '_') 
-      filename = URI::escape(filename) if request.env['HTTP_USER_AGENT'] =~ /MSIE/
+      filename = filename.gsub(/[\/\<\>\|:"\?\*\\]/, '_')
       msg = @item.rfc822 || @item.mail.to_s
       return send_data(msg, :filename => filename,
         :type => 'message/rfc822', :disposition => 'attachment')
@@ -227,7 +226,6 @@ class Gw::Admin::Webmail::MailsController < Gw::Controller::Admin::Base
     
     subject = @item.subject.gsub(/[\/\<\>\|:;"\?\*\\\r\n]/, '_')
     subject = subject.match(/^.{100}/).to_s if subject.length > 100
-    subject = URI::escape(subject) if request.user_agent =~ /MSIE/
     filename = sprintf("%07d_%s.zip", @item.uid, subject)
     send_data(zipdata, :type => 'application/zip', :filename => filename, :disposition => 'attachment')
   end
@@ -1000,6 +998,9 @@ protected
   end
   
   def load_attachments(ref, item)
+    return unless item.tmp_attachment_ids.nil?
+
+    item.tmp_attachment_ids = []
     if ref.has_attachments?
       ref.attachments.each do |f|
         file = Gw::WebmailMailAttachment.new({
@@ -1010,6 +1011,7 @@ protected
           :filename => f.name
         })
         file.save_file(tmpfile) # pass the errors
+        item.tmp_attachment_ids << file.id
       end
     end
   end
@@ -1048,6 +1050,8 @@ protected
     @item.in_bcc = flash[:mail_bcc] if flash[:mail_bcc]
     @item.in_subject = flash[:mail_subject] if flash[:mail_subject]
     @item.in_body = flash[:mail_body] if flash[:mail_body]
+    @item.tmp_id = flash[:mail_tmp_id] if flash[:mail_tmp_id]
+    @item.tmp_attachment_ids = flash[:mail_tmp_attachment_ids] if flash[:mail_tmp_attachment_ids]
   end
   
   def concat_mail_body(quot_body, sign_body)

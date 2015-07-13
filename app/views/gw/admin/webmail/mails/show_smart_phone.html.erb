@@ -214,13 +214,17 @@ function updateLabels(uid, html) {
 <table class="mail attachments">
   <tr>
     <td class="attention">
-      ※パケット定額サービスに入っていない場合、高額の通信料が発生する場合があります。
+      <% if attachment_file_downloadable? %>
+        <%=raw Joruri.config.application['webmail.download_allow_message'] %>
+      <% else %>
+        <%=raw Joruri.config.application['webmail.download_deny_message'] %>
+      <% end %>
     </td>
   </tr>
   <tr>
     <td id="showNormalArea">
       <% @item.attachments.each do |at| %>
-        <%= link_to mail_text_wrap("#{at.name}(#{at.eng_unit})"), url_for(:download => at.seqno, :size => at.size),
+        <%= link_to_if attachment_file_downloadable?, mail_text_wrap("#{at.name}(#{at.eng_unit})"), url_for(:download => at.seqno, :size => at.size),
           :target => (at.image? ? '_blank' : nil), :class => at.css_class %>
       <% end %>
     </td>

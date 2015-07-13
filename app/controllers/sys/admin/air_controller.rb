@@ -44,7 +44,7 @@ class Sys::Admin::AirController < ApplicationController
     cond = Condition.new do |c|
       c.and :account, account
       c.and :air_login_id, 'IS NOT', nil
-      c.and :air_login_id, 'LIKE', "#{token} %"
+      c.and :air_login_id, 'LIKE', "#{Sys::User.escape_like(token)} %"
     end
     user = Sys::User.find(:first, :conditions => cond.where)
     return render(:text => "ログインに失敗しました。") unless user

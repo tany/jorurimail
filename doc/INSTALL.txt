@@ -1,4 +1,4 @@
-## Joruri Mail v1.3.0 インストールマニュアル                2013.10.11
+## Joruri Mail v1.3.1 インストールマニュアル                2015.7.10
 
 **********************************************************************
  1 想定環境
@@ -48,9 +48,8 @@ rootユーザに変更します。
 必要なパッケージをダウンロードします。
 
   # cd /usr/local/src
-  # wget http://joruri.org/download/jorurimail/jorurimail-1.3.0.tar.gz
+  # wget http://joruri.org/download/jorurimail/jorurimail-1.3.1.tar.gz
   # wget ftp://ftp.ruby-lang.org/pub/ruby/1.9/ruby-1.9.2-p290.tar.gz
-  # wget http://rubyforge.org/frs/download.php/74445/rubygems-1.6.2.tgz
 
 Joruriユーザを作成します。
 
@@ -60,7 +59,7 @@ Joruriユーザを作成します。
 Joruriソースコードを設置します。
 
   # mkdir /var/share
-  # tar xvzf jorurimail-1.3.0.tar.gz -C /var/share
+  # tar xvzf jorurimail-1.3.1.tar.gz -C /var/share
   # chown -R joruri:joruri /var/share/jorurimail
 
 **********************************************************************
@@ -108,9 +107,11 @@ MySQLを起動します。
   # /sbin/chkconfig mysqld on
   
 rootユーザのパスワードを設定します。
+
   # /usr/bin/mysqladmin -u root password "pass"
 
 joruriユーザを作成します。
+
   # /usr/bin/mysql -u root -ppass \
   #   -e "grant all on *.* to joruri@localhost IDENTIFIED BY 'pass'"
 
@@ -130,12 +131,28 @@ Rubyをインストールします。
   # ./configure
   # make && make install
 
+  ※コンパイル時に下記のエラーが発生した場合はパッチの適用をお試しください。
+
+  ---
+  ossl_pkey_ec.c: In function ‘ossl_ec_group_initialize’:
+  ossl_pkey_ec.c:765: 警告: assignment makes pointer from integer without a cast
+  ossl_pkey_ec.c:819: error: ‘EC_GROUP_new_curve_GF2m’ undeclared (first use in this function)
+  ossl_pkey_ec.c:819: error: (Each undeclared identifier is reported only once
+  ossl_pkey_ec.c:819: error: for each function it appears in.)
+  ossl_pkey_ec.c: In function ‘ossl_ec_group_set_seed’:
+  ossl_pkey_ec.c:1114: 警告: 符合付きと符合無しの整数式同士の比較です
+  make[1]: *** [ossl_pkey_ec.o] エラー 1
+  ---
+
+  # yum install patch
+  # cd /usr/local/src/ruby-1.9.2-p290/ext/openssl/
+  # wget http://joruri.org/download/jorurimail/ruby1.9.2-p290-ossl_pkey_ec.patch
+  # patch < ruby1.9.2-p290-ossl_pkey_ec.patch
+
 RubyGemsをインストールします。
 
-  # cd /usr/local/src
-  # tar xvzf rubygems-1.6.2.tgz
-  # cd rubygems-1.6.2
-  # ruby setup.rb
+  # gem install rubygems-update -v 1.6.2
+  # update_rubygems
 
 ======================================================================
  6.2 gemライブラリ のインストール
@@ -231,11 +248,13 @@ VirtualHost設定
 ======================================================================
 
 Apacheに設定を追加します。
+
   $ su -
   # cp /var/share/jorurimail/config/samples/jorurimail.conf \
   #   /etc/httpd/conf.d/
 
 Apache を再起動します。
+
   # /sbin/service httpd configtest
   # /sbin/service httpd restart
 

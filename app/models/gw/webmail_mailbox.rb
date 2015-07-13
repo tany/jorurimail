@@ -210,53 +210,7 @@ class Gw::WebmailMailbox < ActiveRecord::Base
     end
     
     begin
-      res = imap.getquotaroot('INBOX')[1] # sample: "" (STORAGE 258334 307200 MESSAGES 3145 10000)
-      if m = res.match(/\(STORAGE ([0-9]+) ([0-9]+).*/)
-        quota_bytes      = m[1].to_i*1024
-        max_quota_bytes  = m[2].to_i*1024
-        warn_quota_bytes = max_quota_bytes * Joruri.config.application['webmail.mailbox_quota_alert_rate'].to_f
-        #messages         = m[3].to_i
-        #max_messages     = m[4].to_i
-        
-        quota = {}
-        quota[:total_bytes] = max_quota_bytes
-        quota[:total]       = Util::Unit.eng_unit(max_quota_bytes).gsub(/\.[0-9]+/, '')
-        quota[:used_bytes]  = quota_bytes
-        quota[:used]        = Util::Unit.eng_unit(quota_bytes).gsub(/\.[0-9]+/, '')
-        quota[:usage_rate]  = sprintf('%.1f', quota_bytes.to_f / max_quota_bytes.to_f * 100).to_f
-        if quota_bytes > warn_quota_bytes
-          quota[:usable] = Util::Unit.eng_unit(max_quota_bytes - quota_bytes).gsub(/\.[0-9]+/, '') 
-        end
-      end
-      
-#      ud = ssh.exec!("sudo du -b --max-depth=1 #{dir}").to_s.force_encoding('utf-8')
-#      raise "error: du -b --max-depth=1: #{ud}" if ud !~ /^[0-9]/
-#      
-#      ub = 0
-#      mailbox_used = {'INBOX' => 0}
-#      ud.each_line do |line|
-#        size, mailbox = line.chomp.split(/\t/)
-#        next if size.nil? || mailbox.nil?
-#        if mailbox == dir
-#          ub = size
-#        else
-#          mailbox = mailbox.gsub(/#{dir}\//, '')
-#          if mailbox =~ /^\./
-#            mailbox_used[mailbox.gsub(/^\./, '')] = size.to_i
-#          else
-#            mailbox_used['INBOX'] += size.to_i
-#          end
-#        end
-#      end
-#      
-#      mailbox_used.each do |key, val|
-#        mailbox_used[key] = Util::Unit.eng_unit(val)
-#      end
-      
-#      quota[:mailboxes] = []
-#      mailbox_used.each_pair do |name, used|
-#        quota[:mailboxes] << {:name => name, :used => used}
-#      end
+      quota = get_quota_info
     rescue => e
       error_log("#{e}: #{res}")
       quota = nil
@@ -266,6 +220,31 @@ class Gw::WebmailMailbox < ActiveRecord::Base
       st ||= Gw::WebmailSetting.new(cond)
       st.value = quota.to_xml(:dasherize => false, :skip_types => true, :root => 'item')
       st.save(:validate => false)
+    end
+    
+    return quota
+  end
+  
+  def self.get_quota_info
+    return nil unless imap.capability.include?("QUOTA")
+    
+    res = imap.getquotaroot('INBOX')[1] # sample: "" (STORAGE 258334 307200 MESSAGES 3145 10000)
+    if m = res.match(/\(STORAGE ([0-9]+) ([0-9]+).*/)
+      quota_bytes      = m[1].to_i*1024
+      max_quota_bytes  = m[2].to_i*1024
+      warn_quota_bytes = max_quota_bytes * Joruri.config.application['webmail.mailbox_quota_alert_rate'].to_f
+      #messages         = m[3].to_i
+      #max_messages     = m[4].to_i
+      
+      quota = {}
+      quota[:total_bytes] = max_quota_bytes
+      quota[:total]       = Util::Unit.eng_unit(max_quota_bytes).gsub(/\.[0-9]+/, '')
+      quota[:used_bytes]  = quota_bytes
+      quota[:used]        = Util::Unit.eng_unit(quota_bytes).gsub(/\.[0-9]+/, '')
+      quota[:usage_rate]  = sprintf('%.1f', quota_bytes.to_f / max_quota_bytes.to_f * 100).to_f
+      if quota_bytes > warn_quota_bytes
+        quota[:usable] = Util::Unit.eng_unit(max_quota_bytes - quota_bytes).gsub(/\.[0-9]+/, '') 
+      end
     end
     
     return quota

@@ -6,7 +6,7 @@
     <td><%= f.radio_buttons :state, @item.states, :class => 'status' %></td>
   </tr><tr>
     <th><%= @item.locale(:parent_id) %></th>
-    <td><%= f.select_with_tree :parent_id, Sys::Group.find(:all, :conditions => {:level_no => 1}, :order => :sort_no) %></td>
+    <td><%= f.select :parent_id, @item.candidate(true) %></td>
   </tr><tr>
     <th><%= @item.locale(:code) %></th>
     <td><%= f.text_field :code, :class => 'id' %></td>

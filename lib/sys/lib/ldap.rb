@@ -6,6 +6,7 @@ class Sys::Lib::Ldap
   attr_accessor :base
   attr_accessor :domain
   attr_accessor :bind_dn
+  attr_accessor :charset
   
   ## Initializer.
   def initialize(params = nil)
@@ -16,7 +17,8 @@ class Sys::Lib::Ldap
         :port => conf['port'],
         :base => conf['base'],
         :domain => conf['domain'],
-        :bind_dn => conf['bind_dn']
+        :bind_dn => conf['bind_dn'],
+        :charset => conf['charset']
       }
     end
     self.host = params[:host]
@@ -24,6 +26,7 @@ class Sys::Lib::Ldap
     self.base = params[:base]
     self.domain = params[:domain]
     self.bind_dn = params[:bind_dn] || "uid=[uid],[ous],[base]"
+    self.charset = params[:charset] || "utf-8"
     
     return nil if host.blank? || port.blank? || base.blank?
     
@@ -77,6 +80,7 @@ class Sys::Lib::Ldap
     base  = options[:base]  || self.base
     entries = []
     connection.search2(base, scope, filter) do |entry|
+      entry.each{|k,vs| entry[k] = vs.map{|v| NKF::nkf('-w', v.to_s)}} if charset != 'utf-8'
       entries << cname.new(self, entry)
     end
     

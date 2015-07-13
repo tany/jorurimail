@@ -15,19 +15,22 @@ class Sys::Group < Sys::ManageDatabase
   has_many :enabled_children  , :foreign_key => :parent_id, :class_name => 'Sys::Group',
     :conditions => {:state => 'enabled'},
     :order => :sort_no, :dependent => :destroy
-  
-  has_and_belongs_to_many :users, :class_name => 'Sys::User',
-    :join_table => 'sys_users_groups', :order => 'sys_users.email, sys_users.account'
-  has_and_belongs_to_many :ldap_users, :class_name => 'Sys::User',
+
+  has_many :users_groups, :foreign_key => :group_id
+  has_many :users, :through => :users_groups, :source => :user, 
+    :order => 'sys_users.email, sys_users.account'
+  has_many :ldap_users, :through => :users_groups, :source => :user, 
     :conditions => {:ldap => 1, :state => 'enabled'},
-    :join_table => 'sys_users_groups', :order => 'sys_users.email, sys_users.account'
-  has_and_belongs_to_many :enabled_users, :class_name => 'Sys::User',
+    :order => 'sys_users.email, sys_users.account'
+  has_many :enabled_users, :through => :users_groups, :source => :user, 
     :conditions => {:state => 'enabled'},
-    :join_table => 'sys_users_groups', :order => 'sys_users.email, sys_users.account'
-  
+    :order => 'sys_users.email, sys_users.account'
+
   validates_presence_of :state, :level_no, :code, :name, :name_en, :ldap
   validates_uniqueness_of :code
   
+  attr_accessor :call_update_child_level_no
+  after_save :update_child_level_no
   before_destroy :disable_users
   
   def ldap_users_having_email(order = "id")
@@ -142,5 +145,15 @@ private
       end
     end
     return true
+  end
+
+  def update_child_level_no
+    if call_update_child_level_no && level_no_changed?
+      children.each do |c|
+        c.level_no = level_no + 1
+        c.call_update_child_level_no = true
+        c.save(:validate => false)
+      end
+    end
   end
 end

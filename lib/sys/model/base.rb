@@ -3,6 +3,7 @@ module Sys::Model::Base
   
   def self.included(mod)
     mod.set_table_name mod.to_s.underscore.gsub('/', '_').downcase.pluralize
+    mod.extend ClassMethods
   end
   
   def locale(name)
@@ -40,5 +41,11 @@ module Sys::Model::Base
     self.class.connection.execute(sql)
     rs = self.class.connection.execute("SELECT LAST_INSERT_ID() AS id FROM #{table}")
     return rs.fetch_row[0]
+  end
+
+  module ClassMethods
+    def escape_like(s)
+      s.gsub(/[\\%_]/) {|r| "\\#{r}"}
+    end
   end
 end

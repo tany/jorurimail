@@ -29,7 +29,7 @@ var confirm_before_submit = function(form) {
 
 <p class="form">一括削除</p>
 <%= error_messages_for :item %>
-<%= form_for :item, :id => 'batchDeleteForm' do |f| %>
+<%= form_for :item, :html => {:id => 'batchDeleteForm'} do |f| %>
 <table class="show">
   <tr>
     <th>アカウント</th>

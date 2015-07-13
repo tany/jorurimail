@@ -32,11 +32,11 @@ Joruri::Application.configure do
 
   # Print deprecation notices to the stderr
   config.active_support.deprecation = :stderr
-  
+
   # Logger settings
   config.logger = Logger.new(config.paths.log.first)
   config.logger.level = Logger::WARN
-  
+
   # Sendmail
   config.action_mailer.delivery_method = :smtp
   config.action_mailer.smtp_settings   = {
@@ -47,14 +47,14 @@ Joruri::Application.configure do
     :password       => nil,
     :authentication => nil
   }
-  
+
   # IMAP
   Joruri.config.imap_settings = {
     :address        => '192.168.0.4',
     :port           => 143,
     :usessl         => false
   }
-  
+
   # SSO
   Joruri.config.sso_settings = {
     :gw => {
@@ -65,3 +65,4 @@ Joruri::Application.configure do
     }
   }
 end
+

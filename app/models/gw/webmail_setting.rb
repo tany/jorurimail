@@ -15,9 +15,7 @@ class Gw::WebmailSetting < ActiveRecord::Base
       @configs = []
     end    
   end
-  
-  validates_presence_of :user_id, :name
-  
+
   @@config_categories = [
     ['メール一覧', :mail_list],
     ['メール読み取り', :mail_detail],
@@ -142,6 +140,10 @@ class Gw::WebmailSetting < ActiveRecord::Base
       @@config_input_types["switch_user#{i}".intern] = :account_password_field
     end
   end
+  
+  validates_presence_of :user_id, :name
+  validates :value, :inclusion => @@config_options[:address_order].map{|opts| opts.last}, :if => lambda{|item| item.name == 'address_order'}
+  validates :value, :inclusion => @@config_options[:sys_address_order].map{|opts| opts.last}, :if => lambda{|item| item.name == 'sys_address_order'}
   
   def self.user_config_categories
     categories = []

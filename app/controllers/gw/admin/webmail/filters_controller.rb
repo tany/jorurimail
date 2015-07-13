@@ -14,7 +14,7 @@ class Gw::Admin::Webmail::FiltersController < Gw::Controller::Admin::Base
     item = Gw::WebmailFilter.new.readable
     item.and :user_id, Core.user.id
     item.page  params[:page], params[:limit]
-    item.order params[:sort], 'sort_no, id'
+    item.order 'sort_no, id'
     @items = item.find(:all)
     _index @items
   end
@@ -42,6 +42,7 @@ class Gw::Admin::Webmail::FiltersController < Gw::Controller::Admin::Base
   
   def update
     @item = Gw::WebmailFilter.new.find(params[:id])
+    return error_auth unless @item.editable?
     @item.attributes = params[:item]
     @item.user_id = Core.user.id
     
@@ -50,6 +51,7 @@ class Gw::Admin::Webmail::FiltersController < Gw::Controller::Admin::Base
   
   def destroy
     @item = Gw::WebmailFilter.new.find(params[:id])
+    return error_auth unless @item.deletable?
     _destroy(@item)
   end
   

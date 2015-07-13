@@ -82,10 +82,6 @@ class Sys::Lib::Mail::Attachment
   
   def css_class
     if ext = File::extname(@name).downcase[1..5]
-      conv = {
-        'xlsx' => 'xls',
-      }
-      ext = conv[ext] if conv[ext]
       ext = ext.gsub(/[^0-9a-z]/, '')
       return 'iconFile icon' + ext.gsub(/\b\w/) {|word| word.upcase}
     end

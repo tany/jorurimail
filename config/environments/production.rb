@@ -79,3 +79,4 @@ Joruri::Application.configure do
     }
   }
 end
+

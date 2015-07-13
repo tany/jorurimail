@@ -14,6 +14,9 @@ class Gw::WebmailAddressGroup < ActiveRecord::Base
   #has_many :addresses, :foreign_key => :group_id, :class_name => 'Gw::WebmailAddress',
   #  :order => 'email, id', :dependent => :destroy
   
+  attr_accessor :call_update_child_level_no
+  after_save :update_child_level_no
+  
   validates_presence_of :user_id, :name
     
   def self.user_root_groups(conditions = {})
@@ -70,4 +73,13 @@ class Gw::WebmailAddressGroup < ActiveRecord::Base
     return groups
   end
   
+  def update_child_level_no
+    if call_update_child_level_no && level_no_changed?
+      children.each do |c|
+        c.level_no = level_no + 1
+        c.call_update_child_level_no = true
+        c.save(:validate => false)
+      end
+    end
+  end
 end

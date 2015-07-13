@@ -17,7 +17,7 @@ class Gw::Admin::Webmail::AddressesController < Gw::Controller::Admin::Base
     item.and :group_id, @parent.id if @parent
     item.and :user_id, Core.user.id
     item.page  params[:page], params[:limit]
-    item.order params[:sort], 'kana, id'
+    item.order 'kana, id'
     @items = item.find(:all)
     _index @items
   end
@@ -215,7 +215,7 @@ class Gw::Admin::Webmail::AddressesController < Gw::Controller::Admin::Base
   end
   
   def export
-    return unless params['commit_エクスポート']
+    return unless request.post?
     
     item = Gw::WebmailAddress.new.readable
     item.and :user_id, Core.user.id

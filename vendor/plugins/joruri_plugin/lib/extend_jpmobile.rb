@@ -4,41 +4,6 @@
 Rails.application.config.jpmobile.mobile_filter
 Rails.application.config.jpmobile.form_accept_charset_conversion = true
 
-# source from jpmobile-0.0.8 start
-module Jpmobile::Mobile
-  # ==SoftBank 2G携帯電話(J-PHONE/Vodafone 2G)
-  # スーパクラスはVodafone。
-  class Jphone < Vodafone
-    # 対応するUser-Agentの正規表現
-    USER_AGENT_REGEXP = /^(J-PHONE|J-EMULATOR)/
-    # 対応するメールアドレスの正規表現
-    MAIL_ADDRESS_REGEXP = /^.+@jp-[dhtcrknsq]\.ne\.jp$/
-
-    # 位置情報があれば Position のインスタンスを返す。無ければ +nil+ を返す。
-    def position
-      str = @request.env["HTTP_X_JPHONE_GEOCODE"]
-      return nil if str.nil? || str == "0000000%1A0000000%1A%88%CA%92%75%8F%EE%95%F1%82%C8%82%B5"
-      raise "unsuppoted format" unless str =~ /^(\d\d)(\d\d)(\d\d)%1A(\d\d\d)(\d\d)(\d\d)%1A(.+)$/
-      pos = Jpmobile::Position.new
-      pos.lat = Jpmobile::Position.dms2deg($1,$2,$3)
-      pos.lon = Jpmobile::Position.dms2deg($4,$5,$6)
-      pos.options = {"address"=>NKF.nkf("-m0 -Sw", CGI.unescape($7))}
-      pos.tokyo2wgs84!
-      return pos
-    end
-
-    # cookieに対応しているか？
-    def supports_cookie?
-      false
-    end
-  end
-end
-# source from jpmobile-0.0.8 end
-
-module Jpmobile::Mobile
-  @carriers << 'Jphone'
-end
-
 module Jpmobile
   module RequestWithMobile
     def mobile?
@@ -52,23 +17,26 @@ module Jpmobile::Mobile
     def variants
       return @_variants if @_variants
 
-      @_variants = self.class.ancestors.select {|c| c.to_s =~ /^Jpmobile/}.map do |klass|
+      @_variants = self.class.ancestors.select {|c| c.to_s =~ /^Jpmobile/ && c.to_s !~ /Emoticon/}.map do |klass|
         klass = klass.to_s.
           gsub(/Jpmobile::/, '').
           gsub(/AbstractMobile::/, '').
           gsub(/Mobile::SmartPhone/, 'smart_phone').
+          gsub(/Mobile::Tablet/, 'tablet').
           gsub(/::/, '_').
           gsub(/([A-Z]+)([A-Z][a-z])/, '\1_\2').
           gsub(/([a-z\d])([A-Z])/, '\1_\2').
           downcase
         klass =~ /abstract/ ? "mobile" : klass
       end
-      
-      if @_variants.include?("smart_phone")
-        @_variants = @_variants.reject{|v| v == "mobile"}.map{|v| v.gsub(/mobile/, "smart_phone")}
+
+      if @_variants.include?('tablet')
+        @_variants = @_variants.reject{|v| v == "mobile"}.map{|v| v.gsub(/mobile_/, "tablet_")}
+      elsif @_variants.include?("smart_phone")
+        @_variants = @_variants.reject{|v| v == "mobile"}.map{|v| v.gsub(/mobile_/, "smart_phone_")}
         @_variants << 'mobile'
       end
-      
+
       @_variants
     end
   end
@@ -84,6 +52,9 @@ module Jpmobile::Mobile
     end
     def to_external(str, content_type, charset)
       [str, charset]
+    end
+    def supports_cookie?
+      imode_browser_version != '1.0' && imode_browser_version !~ /^2.0/
     end
   end
 end
@@ -127,14 +98,6 @@ module Jpmobile
     end
     def jis_to_utf8(jis_str)
       NKF.nkf("-m0 -x -Jw", jis_str).gsub(/\r\n/, "\n")
-    end
-  end
-end
-
-module Jpmobile::Mobile
-  class Docomo < AbstractMobile
-    def supports_cookie?
-      imode_browser_version != '1.0' && imode_browser_version !~ /^2.0/
     end
   end
 end

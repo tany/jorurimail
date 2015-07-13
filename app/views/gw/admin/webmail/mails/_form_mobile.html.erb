@@ -2,11 +2,11 @@
 assert = "このメールは携帯端末から送信しています。"
 if @item.in_format == Gw::WebmailMail::FORMAT_HTML
   if @item.in_html_body !~ /^#{assert}/
-    @item.in_html_body = "#{@item.in_html_body}\n\n-------\n#{assert}\n"
+    @item.in_html_body = "#{@item.in_html_body}\n\n-------\n#{assert}\n\n\n"
   end
 else
   if @item.in_body !~ /^#{assert}/
-    @item.in_body = "#{@item.in_body}\n\n-------\n#{assert}\n"
+    @item.in_body = "#{@item.in_body}\n\n-------\n#{assert}\n\n\n"
   end
 end
 
